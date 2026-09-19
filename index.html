@@ -13,7 +13,7 @@
       font-weight: 600;
     }
 
-    /* Regras de impressão para compatibilidade total com celular e computador */
+    /* Regras de impressão caso o usuário imprima direto via atalho de teclado */
     @media print {
       body {
         background-color: #ffffff !important;
@@ -256,10 +256,10 @@
 
   </main>
 
-  <!-- MODAL DE VISUALIZAÇÃO E IMPRESSÃO DE RELATÓRIO -->
+  <!-- MODAL DE VISUALIZAÇÃO DE RELATÓRIO -->
   <div id="modal-relatorio" class="fixed inset-0 bg-black/60 z-50 hidden flex items-center justify-center p-2 sm:p-4">
     <div class="bg-white rounded-lg shadow-2xl max-w-4xl w-full max-h-[95vh] flex flex-col overflow-hidden">
-      <!-- Barra Superior do Relatório (Não sai na impressão) -->
+      <!-- Barra Superior do Relatório -->
       <div class="bg-slate-800 text-white px-4 sm:px-6 py-3 flex justify-between items-center no-print">
         <span class="font-bold text-xs sm:text-sm truncate">Relatório Gerencial</span>
         <div class="flex items-center gap-2">
@@ -267,7 +267,7 @@
             <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z" />
             </svg>
-            <span>Imprimir / PDF</span>
+            <span>Imprimir / Salvar PDF</span>
           </button>
           <button onclick="fecharModalRelatorio()" class="bg-slate-700 hover:bg-slate-600 text-slate-200 text-xs px-3 py-2 rounded transition">
             ✕
@@ -275,7 +275,7 @@
         </div>
       </div>
 
-      <!-- Conteúdo Formatado para Impressão -->
+      <!-- Conteúdo do Relatório -->
       <div id="area-relatorio" class="p-4 sm:p-8 overflow-y-auto bg-white text-slate-800 flex-grow text-xs sm:text-sm">
         <div class="border-b-2 border-slate-800 pb-3 mb-4 flex justify-between items-start">
           <div>
@@ -556,7 +556,7 @@
       document.getElementById('dash-saidas').innerText = totalSaidas;
     }
 
-    // --- FUNÇÕES DE RELATÓRIO E IMPRESSÃO MOBILE/DESKTOP ---
+    // --- FUNÇÕES DE RELATÓRIO E IMPRESSÃO (SEM TRAVAMENTO) ---
     function abrirModalRelatorio() {
       document.getElementById('relatorio-data').innerText = new Date().toLocaleString('pt-BR');
       
@@ -614,51 +614,69 @@
       document.getElementById('modal-relatorio').classList.add('hidden');
     }
 
-    // Função de impressão e exportação para PDF (Mobile e Desktop)
+    // IMPRESSÃO SILENCIOSA VIA IFRAME: Não abre aba nova e volta imediatamente à tela do sistema
     function imprimirRelatorio() {
       const conteudo = document.getElementById('area-relatorio').innerHTML;
       
-      // Cria uma janela limpa com o relatório isolado para o navegador do celular não travar
-      const printWindow = window.open('', '_blank');
-
-      if (printWindow) {
-        printWindow.document.open();
-        printWindow.document.write(`
-          <!DOCTYPE html>
-          <html lang="pt-BR">
-          <head>
-            <meta charset="UTF-8">
-            <meta name="viewport" content="width=device-width, initial-scale=1.0">
-            <title>Relatório - Armazém ERP</title>
-            <script src="https://cdn.tailwindcss.com"><\/script>
-            <style>
-              body { background: #fff; padding: 16px; font-family: sans-serif; }
-              table { width: 100%; border-collapse: collapse; margin-top: 8px; }
-              th, td { border: 1px solid #cbd5e1; padding: 6px 8px; font-size: 11px; }
-              th { background-color: #f1f5f9; text-align: left; }
-              @media print {
-                body { padding: 0; }
-              }
-            </style>
-          </head>
-          <body>
-            <div>${conteudo}</div>
-            <script>
-              window.onload = function() {
-                setTimeout(function() {
-                  window.focus();
-                  window.print();
-                }, 400);
-              };
-            <\/script>
-          </body>
-          </html>
-        `);
-        printWindow.document.close();
-      } else {
-        // Fallback caso o celular bloqueie popups
-        window.print();
+      // Remove qualquer iframe de impressão antigo se existir
+      let iframeAntigo = document.getElementById('iframe-impressao-oculto');
+      if (iframeAntigo) {
+        iframeAntigo.remove();
       }
+
+      // Cria um iframe 100% invisível no próprio documento
+      const iframe = document.createElement('iframe');
+      iframe.id = 'iframe-impressao-oculto';
+      iframe.style.position = 'fixed';
+      iframe.style.right = '0';
+      iframe.style.bottom = '0';
+      iframe.style.width = '0';
+      iframe.style.height = '0';
+      iframe.style.border = '0';
+      document.body.appendChild(iframe);
+
+      const doc = iframe.contentWindow.document;
+      doc.open();
+      doc.write(`
+        <!DOCTYPE html>
+        <html lang="pt-BR">
+        <head>
+          <meta charset="UTF-8">
+          <title>Relatório Operacional de Armazém</title>
+          <style>
+            * { box-sizing: border-box; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; }
+            body { padding: 15px; margin: 0; color: #1e293b; background: #ffffff; }
+            table { width: 100%; border-collapse: collapse; margin-top: 8px; margin-bottom: 12px; }
+            th, td { border: 1px solid #cbd5e1; padding: 6px 8px; font-size: 11px; text-align: left; }
+            th { background-color: #f1f5f9; font-weight: 600; text-transform: uppercase; }
+            .grid { display: flex; gap: 10px; margin-bottom: 15px; }
+            .grid > div { flex: 1; border: 1px solid #e2e8f0; padding: 8px; border-radius: 4px; background: #f8fafc; }
+            .text-right { text-align: right; }
+            .font-bold { font-weight: bold; }
+            .uppercase { text-transform: uppercase; }
+            .border-b { border-bottom: 1px solid #e2e8f0; }
+            .border-b-2 { border-bottom: 2px solid #0f172a; }
+            .text-slate-500 { color: #64748b; }
+            .text-xs { font-size: 11px; }
+            .text-base { font-size: 14px; }
+            .text-xl { font-size: 18px; }
+            @media print {
+              body { padding: 0; }
+            }
+          </style>
+        </head>
+        <body>
+          ${conteudo}
+        </body>
+        </html>
+      `);
+      doc.close();
+
+      // Dispara a impressão direto pelo iframe sem sair da tela
+      setTimeout(() => {
+        iframe.contentWindow.focus();
+        iframe.contentWindow.print();
+      }, 350);
     }
 
     function carregarDadosExemplo() {
@@ -689,4 +707,3 @@
   </script>
 </body>
 </html>
- 
