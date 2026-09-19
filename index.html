@@ -13,7 +13,7 @@
       font-weight: 600;
     }
 
-    /* Regras de impressão caso o usuário imprima direto via atalho de teclado */
+    /* Regras de impressão compatíveis com o Safari / AirPrint do iOS */
     @media print {
       body {
         background-color: #ffffff !important;
@@ -37,6 +37,7 @@
         display: block !important;
         width: 100% !important;
         padding: 0 !important;
+        overflow: visible !important;
       }
     }
   </style>
@@ -263,7 +264,7 @@
       <div class="bg-slate-800 text-white px-4 sm:px-6 py-3 flex justify-between items-center no-print">
         <span class="font-bold text-xs sm:text-sm truncate">Relatório Gerencial</span>
         <div class="flex items-center gap-2">
-          <button onclick="imprimirRelatorio()" class="bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-semibold px-3 sm:px-4 py-2 rounded flex items-center gap-1 transition">
+          <button onclick="acionarImpressao()" class="bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-semibold px-4 py-2 rounded flex items-center gap-1.5 transition shadow">
             <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z" />
             </svg>
@@ -275,7 +276,15 @@
         </div>
       </div>
 
-      <!-- Conteúdo do Relatório -->
+      <!-- Dica para usuário de iPhone (Aparece apenas na tela) -->
+      <div class="bg-blue-50 border-b border-blue-200 text-blue-800 px-4 py-2 text-[11px] sm:text-xs flex items-center gap-2 no-print">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+        </svg>
+        <span><strong>No iPhone/iPad:</strong> Ao abrir a impressão, faça o gesto de pinça (zoom) na folha para visualizá-la como PDF e salvar em Arquivos.</span>
+      </div>
+
+      <!-- Conteúdo do Relatório Formatado -->
       <div id="area-relatorio" class="p-4 sm:p-8 overflow-y-auto bg-white text-slate-800 flex-grow text-xs sm:text-sm">
         <div class="border-b-2 border-slate-800 pb-3 mb-4 flex justify-between items-start">
           <div>
@@ -556,7 +565,7 @@
       document.getElementById('dash-saidas').innerText = totalSaidas;
     }
 
-    // --- FUNÇÕES DE RELATÓRIO E IMPRESSÃO (SEM TRAVAMENTO) ---
+    // --- FUNÇÕES DE RELATÓRIO E IMPRESSÃO (iOS / Safari / PC) ---
     function abrirModalRelatorio() {
       document.getElementById('relatorio-data').innerText = new Date().toLocaleString('pt-BR');
       
@@ -614,69 +623,10 @@
       document.getElementById('modal-relatorio').classList.add('hidden');
     }
 
-    // IMPRESSÃO SILENCIOSA VIA IFRAME: Não abre aba nova e volta imediatamente à tela do sistema
-    function imprimirRelatorio() {
-      const conteudo = document.getElementById('area-relatorio').innerHTML;
-      
-      // Remove qualquer iframe de impressão antigo se existir
-      let iframeAntigo = document.getElementById('iframe-impressao-oculto');
-      if (iframeAntigo) {
-        iframeAntigo.remove();
-      }
-
-      // Cria um iframe 100% invisível no próprio documento
-      const iframe = document.createElement('iframe');
-      iframe.id = 'iframe-impressao-oculto';
-      iframe.style.position = 'fixed';
-      iframe.style.right = '0';
-      iframe.style.bottom = '0';
-      iframe.style.width = '0';
-      iframe.style.height = '0';
-      iframe.style.border = '0';
-      document.body.appendChild(iframe);
-
-      const doc = iframe.contentWindow.document;
-      doc.open();
-      doc.write(`
-        <!DOCTYPE html>
-        <html lang="pt-BR">
-        <head>
-          <meta charset="UTF-8">
-          <title>Relatório Operacional de Armazém</title>
-          <style>
-            * { box-sizing: border-box; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; }
-            body { padding: 15px; margin: 0; color: #1e293b; background: #ffffff; }
-            table { width: 100%; border-collapse: collapse; margin-top: 8px; margin-bottom: 12px; }
-            th, td { border: 1px solid #cbd5e1; padding: 6px 8px; font-size: 11px; text-align: left; }
-            th { background-color: #f1f5f9; font-weight: 600; text-transform: uppercase; }
-            .grid { display: flex; gap: 10px; margin-bottom: 15px; }
-            .grid > div { flex: 1; border: 1px solid #e2e8f0; padding: 8px; border-radius: 4px; background: #f8fafc; }
-            .text-right { text-align: right; }
-            .font-bold { font-weight: bold; }
-            .uppercase { text-transform: uppercase; }
-            .border-b { border-bottom: 1px solid #e2e8f0; }
-            .border-b-2 { border-bottom: 2px solid #0f172a; }
-            .text-slate-500 { color: #64748b; }
-            .text-xs { font-size: 11px; }
-            .text-base { font-size: 14px; }
-            .text-xl { font-size: 18px; }
-            @media print {
-              body { padding: 0; }
-            }
-          </style>
-        </head>
-        <body>
-          ${conteudo}
-        </body>
-        </html>
-      `);
-      doc.close();
-
-      // Dispara a impressão direto pelo iframe sem sair da tela
-      setTimeout(() => {
-        iframe.contentWindow.focus();
-        iframe.contentWindow.print();
-      }, 350);
+    // Chamada nativa e direta (100% suportada no Safari do iOS)
+    function acionarImpressao() {
+      // Dispara o diálogo oficial do iOS (AirPrint / Salvar em PDF)
+      window.print();
     }
 
     function carregarDadosExemplo() {
