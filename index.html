@@ -13,26 +13,30 @@
       font-weight: 600;
     }
 
-    /* Estilos específicos para Impressão e PDF */
+    /* Regras de impressão para compatibilidade total com celular e computador */
     @media print {
-      body * {
-        visibility: hidden;
+      body {
+        background-color: #ffffff !important;
       }
-      #area-relatorio, #area-relatorio * {
-        visibility: visible;
+      header, nav, main, footer, .no-print {
+        display: none !important;
       }
-      #area-relatorio {
-        position: absolute;
-        left: 0;
-        top: 0;
-        width: 100%;
-        margin: 0;
-        padding: 10px;
+      #modal-relatorio {
+        position: static !important;
+        background: transparent !important;
+        padding: 0 !important;
+        display: block !important;
+      }
+      #modal-relatorio > div {
+        max-height: none !important;
         box-shadow: none !important;
         border: none !important;
+        width: 100% !important;
       }
-      .no-print {
-        display: none !important;
+      #area-relatorio {
+        display: block !important;
+        width: 100% !important;
+        padding: 0 !important;
       }
     }
   </style>
@@ -253,68 +257,68 @@
   </main>
 
   <!-- MODAL DE VISUALIZAÇÃO E IMPRESSÃO DE RELATÓRIO -->
-  <div id="modal-relatorio" class="fixed inset-0 bg-black/60 z-50 hidden flex items-center justify-center p-4">
-    <div class="bg-white rounded-lg shadow-2xl max-w-4xl w-full max-h-[90vh] flex flex-col overflow-hidden">
+  <div id="modal-relatorio" class="fixed inset-0 bg-black/60 z-50 hidden flex items-center justify-center p-2 sm:p-4">
+    <div class="bg-white rounded-lg shadow-2xl max-w-4xl w-full max-h-[95vh] flex flex-col overflow-hidden">
       <!-- Barra Superior do Relatório (Não sai na impressão) -->
-      <div class="bg-slate-800 text-white px-6 py-3 flex justify-between items-center no-print">
-        <span class="font-bold text-sm">Visualização do Relatório Gerencial</span>
+      <div class="bg-slate-800 text-white px-4 sm:px-6 py-3 flex justify-between items-center no-print">
+        <span class="font-bold text-xs sm:text-sm truncate">Relatório Gerencial</span>
         <div class="flex items-center gap-2">
-          <button onclick="imprimirRelatorio()" class="bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-semibold px-4 py-2 rounded flex items-center gap-1 transition">
+          <button onclick="imprimirRelatorio()" class="bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-semibold px-3 sm:px-4 py-2 rounded flex items-center gap-1 transition">
             <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z" />
             </svg>
-            Imprimir / Salvar PDF
+            <span>Imprimir / PDF</span>
           </button>
           <button onclick="fecharModalRelatorio()" class="bg-slate-700 hover:bg-slate-600 text-slate-200 text-xs px-3 py-2 rounded transition">
-            Fechar
+            ✕
           </button>
         </div>
       </div>
 
       <!-- Conteúdo Formatado para Impressão -->
-      <div id="area-relatorio" class="p-8 overflow-y-auto bg-white text-slate-800 flex-grow text-xs sm:text-sm">
-        <div class="border-b-2 border-slate-800 pb-4 mb-6 flex justify-between items-start">
+      <div id="area-relatorio" class="p-4 sm:p-8 overflow-y-auto bg-white text-slate-800 flex-grow text-xs sm:text-sm">
+        <div class="border-b-2 border-slate-800 pb-3 mb-4 flex justify-between items-start">
           <div>
-            <h1 class="text-xl font-bold uppercase text-slate-900">Relatório Operacional de Armazém & WMS</h1>
-            <p class="text-xs text-slate-500">Módulo Integrado de Logística e Gestão de Inventário</p>
+            <h1 class="text-base sm:text-xl font-bold uppercase text-slate-900">Relatório de Armazém & WMS</h1>
+            <p class="text-[11px] sm:text-xs text-slate-500">Módulo Integrado de Logística e Gestão de Inventário</p>
           </div>
-          <div class="text-right text-xs text-slate-500">
+          <div class="text-right text-[10px] sm:text-xs text-slate-500">
             <p><strong>Emissão:</strong> <span id="relatorio-data"></span></p>
             <p>Status: Operação Ativa</p>
           </div>
         </div>
 
         <!-- Métricas Rápidas do Relatório -->
-        <div class="grid grid-cols-4 gap-3 mb-6 bg-slate-50 p-4 rounded border border-slate-200">
+        <div class="grid grid-cols-2 sm:grid-cols-4 gap-2 sm:gap-3 mb-6 bg-slate-50 p-3 sm:p-4 rounded border border-slate-200">
           <div>
-            <p class="text-xs text-slate-500 uppercase font-semibold">SKUs</p>
-            <p id="rel-total-skus" class="text-lg font-bold text-slate-900">0</p>
+            <p class="text-[11px] text-slate-500 uppercase font-semibold">SKUs</p>
+            <p id="rel-total-skus" class="text-base sm:text-lg font-bold text-slate-900">0</p>
           </div>
           <div>
-            <p class="text-xs text-slate-500 uppercase font-semibold">Saldo em Peças</p>
-            <p id="rel-total-saldo" class="text-lg font-bold text-blue-700">0</p>
+            <p class="text-[11px] text-slate-500 uppercase font-semibold">Saldo Total</p>
+            <p id="rel-total-saldo" class="text-base sm:text-lg font-bold text-blue-700">0</p>
           </div>
           <div>
-            <p class="text-xs text-slate-500 uppercase font-semibold">Total Entradas</p>
-            <p id="rel-total-entradas" class="text-lg font-bold text-emerald-700">0</p>
+            <p class="text-[11px] text-slate-500 uppercase font-semibold">Entradas</p>
+            <p id="rel-total-entradas" class="text-base sm:text-lg font-bold text-emerald-700">0</p>
           </div>
           <div>
-            <p class="text-xs text-slate-500 uppercase font-semibold">Total Expedições</p>
-            <p id="rel-total-saidas" class="text-lg font-bold text-amber-700">0</p>
+            <p class="text-[11px] text-slate-500 uppercase font-semibold">Expedições</p>
+            <p id="rel-total-saidas" class="text-base sm:text-lg font-bold text-amber-700">0</p>
           </div>
         </div>
 
         <!-- Tabela 1: Posição de Estoque -->
-        <div class="mb-6">
-          <h3 class="font-bold text-slate-900 border-b pb-1 mb-2 text-sm uppercase">1. Posição Física de Estoque Atual</h3>
-          <table class="w-full text-left text-xs border border-slate-200">
+        <div class="mb-6 overflow-x-auto">
+          <h3 class="font-bold text-slate-900 border-b pb-1 mb-2 text-xs sm:text-sm uppercase">1. Posição Física de Estoque Atual</h3>
+          <table class="w-full text-left text-[11px] sm:text-xs border border-slate-200 border-collapse">
             <thead class="bg-slate-100 border-b border-slate-200">
               <tr>
-                <th class="p-2 border-r">SKU</th>
-                <th class="p-2 border-r">Descrição</th>
-                <th class="p-2 border-r">Lote</th>
-                <th class="p-2 border-r">Endereço</th>
-                <th class="p-2 text-right">Saldo</th>
+                <th class="p-2 border">SKU</th>
+                <th class="p-2 border">Descrição</th>
+                <th class="p-2 border">Lote</th>
+                <th class="p-2 border">Endereço</th>
+                <th class="p-2 border text-right">Saldo</th>
               </tr>
             </thead>
             <tbody id="rel-tabela-estoque" class="divide-y divide-slate-200">
@@ -324,17 +328,17 @@
         </div>
 
         <!-- Tabela 2: Últimas Movimentações -->
-        <div>
-          <h3 class="font-bold text-slate-900 border-b pb-1 mb-2 text-sm uppercase">2. Histórico de Movimentações Registradas</h3>
-          <table class="w-full text-left text-xs border border-slate-200">
+        <div class="overflow-x-auto">
+          <h3 class="font-bold text-slate-900 border-b pb-1 mb-2 text-xs sm:text-sm uppercase">2. Histórico de Movimentações (Últimas)</h3>
+          <table class="w-full text-left text-[11px] sm:text-xs border border-slate-200 border-collapse">
             <thead class="bg-slate-100 border-b border-slate-200">
               <tr>
-                <th class="p-2 border-r">Data/Hora</th>
-                <th class="p-2 border-r">Tipo</th>
-                <th class="p-2 border-r">Doc.</th>
-                <th class="p-2 border-r">SKU</th>
-                <th class="p-2 border-r text-right">Qtd</th>
-                <th class="p-2">Origem / Destino</th>
+                <th class="p-2 border">Data/Hora</th>
+                <th class="p-2 border">Tipo</th>
+                <th class="p-2 border">Doc.</th>
+                <th class="p-2 border">SKU</th>
+                <th class="p-2 border text-right">Qtd</th>
+                <th class="p-2 border">Origem / Destino</th>
               </tr>
             </thead>
             <tbody id="rel-tabela-kardex" class="divide-y divide-slate-200">
@@ -343,9 +347,9 @@
           </table>
         </div>
 
-        <div class="mt-8 pt-4 border-t border-slate-200 flex justify-between text-[11px] text-slate-500">
+        <div class="mt-8 pt-4 border-t border-slate-200 flex flex-col sm:flex-row justify-between gap-3 text-[11px] text-slate-500">
           <span>Relatório gerado via ERP Operacional</span>
-          <span>Responsável Logístico: ____________________________________</span>
+          <span>Responsável: ____________________________________</span>
         </div>
       </div>
     </div>
@@ -357,7 +361,6 @@
 
   <!-- SCRIPT OPERACIONAL DO ERP -->
   <script>
-    // Inicialização do LocalStorage
     let estoque = JSON.parse(localStorage.getItem('erp_estoque')) || [];
     let movimentos = JSON.parse(localStorage.getItem('erp_movimentos')) || [];
 
@@ -398,7 +401,6 @@
       const qtd = parseInt(document.getElementById('rec-qtd').value, 10);
       const endereco = document.getElementById('rec-endereco').value.trim().toUpperCase();
 
-      // Localizar se o item já existe no mesmo lote e endereço
       const index = estoque.findIndex(item => item.sku === sku && item.lote === lote && item.endereco === endereco);
 
       if (index >= 0) {
@@ -554,11 +556,10 @@
       document.getElementById('dash-saidas').innerText = totalSaidas;
     }
 
-    // --- FUNÇÕES DO RELATÓRIO E IMPRESSÃO ---
+    // --- FUNÇÕES DE RELATÓRIO E IMPRESSÃO MOBILE/DESKTOP ---
     function abrirModalRelatorio() {
       document.getElementById('relatorio-data').innerText = new Date().toLocaleString('pt-BR');
       
-      // Métricas
       const totalSkus = new Set(estoque.map(i => i.sku)).size;
       const totalUnidades = estoque.reduce((acc, i) => acc + i.quantidade, 0);
       const totalEntradas = movimentos.filter(m => m.tipo === 'ENTRADA').length;
@@ -569,7 +570,6 @@
       document.getElementById('rel-total-entradas').innerText = totalEntradas;
       document.getElementById('rel-total-saidas').innerText = totalSaidas;
 
-      // Posição de estoque no relatório
       const tEstoque = document.getElementById('rel-tabela-estoque');
       tEstoque.innerHTML = '';
       if (estoque.length === 0) {
@@ -578,31 +578,30 @@
         estoque.forEach(i => {
           tEstoque.innerHTML += `
             <tr>
-              <td class="p-2 border-r font-semibold">${i.sku}</td>
-              <td class="p-2 border-r">${i.descricao}</td>
-              <td class="p-2 border-r">${i.lote}</td>
-              <td class="p-2 border-r">${i.endereco}</td>
-              <td class="p-2 text-right font-bold">${i.quantidade}</td>
+              <td class="p-2 border font-semibold">${i.sku}</td>
+              <td class="p-2 border">${i.descricao}</td>
+              <td class="p-2 border">${i.lote}</td>
+              <td class="p-2 border">${i.endereco}</td>
+              <td class="p-2 border text-right font-bold">${i.quantidade}</td>
             </tr>
           `;
         });
       }
 
-      // Movimentações no relatório (até 15 últimas)
       const tKardex = document.getElementById('rel-tabela-kardex');
       tKardex.innerHTML = '';
       if (movimentos.length === 0) {
         tKardex.innerHTML = '<tr><td colspan="6" class="p-2 text-center text-slate-400">Nenhum movimento registrado.</td></tr>';
       } else {
-        movimentos.slice(0, 15).forEach(m => {
+        movimentos.slice(0, 20).forEach(m => {
           tKardex.innerHTML += `
             <tr>
-              <td class="p-2 border-r">${m.dataHora}</td>
-              <td class="p-2 border-r font-semibold">${m.tipo}</td>
-              <td class="p-2 border-r">${m.documento}</td>
-              <td class="p-2 border-r">${m.sku}</td>
-              <td class="p-2 border-r text-right font-bold">${m.quantidade}</td>
-              <td class="p-2">${m.entidade}</td>
+              <td class="p-2 border">${m.dataHora}</td>
+              <td class="p-2 border font-semibold">${m.tipo}</td>
+              <td class="p-2 border">${m.documento}</td>
+              <td class="p-2 border">${m.sku}</td>
+              <td class="p-2 border text-right font-bold">${m.quantidade}</td>
+              <td class="p-2 border">${m.entidade}</td>
             </tr>
           `;
         });
@@ -615,8 +614,51 @@
       document.getElementById('modal-relatorio').classList.add('hidden');
     }
 
+    // Função de impressão e exportação para PDF (Mobile e Desktop)
     function imprimirRelatorio() {
-      window.print();
+      const conteudo = document.getElementById('area-relatorio').innerHTML;
+      
+      // Cria uma janela limpa com o relatório isolado para o navegador do celular não travar
+      const printWindow = window.open('', '_blank');
+
+      if (printWindow) {
+        printWindow.document.open();
+        printWindow.document.write(`
+          <!DOCTYPE html>
+          <html lang="pt-BR">
+          <head>
+            <meta charset="UTF-8">
+            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+            <title>Relatório - Armazém ERP</title>
+            <script src="https://cdn.tailwindcss.com"><\/script>
+            <style>
+              body { background: #fff; padding: 16px; font-family: sans-serif; }
+              table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+              th, td { border: 1px solid #cbd5e1; padding: 6px 8px; font-size: 11px; }
+              th { background-color: #f1f5f9; text-align: left; }
+              @media print {
+                body { padding: 0; }
+              }
+            </style>
+          </head>
+          <body>
+            <div>${conteudo}</div>
+            <script>
+              window.onload = function() {
+                setTimeout(function() {
+                  window.focus();
+                  window.print();
+                }, 400);
+              };
+            <\/script>
+          </body>
+          </html>
+        `);
+        printWindow.document.close();
+      } else {
+        // Fallback caso o celular bloqueie popups
+        window.print();
+      }
     }
 
     function carregarDadosExemplo() {
@@ -643,8 +685,8 @@
       }
     }
 
-    // Inicialização ao carregar a página
     salvarDados();
   </script>
 </body>
 </html>
+ 
